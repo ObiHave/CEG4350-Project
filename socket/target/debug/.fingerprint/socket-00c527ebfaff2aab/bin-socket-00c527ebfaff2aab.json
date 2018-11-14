@@ -1,0 +1,1 @@
+{"rustc":10761786290546129367,"features":"[]","target":16518075959414448608,"profile":8946018706344617295,"path":1036222786711178230,"deps":[["rand v0.5.5","rand",15342037599222138254]],"local":[{"MtimeBased":[[1542238464,268409311],".fingerprint/socket-00c527ebfaff2aab/dep-bin-socket-00c527ebfaff2aab"]}],"rustflags":[],"edition":"Edition2015"}
