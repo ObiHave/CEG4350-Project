@@ -14,16 +14,16 @@ fn main() {
     let cons_name = consumer_socket.local_addr().unwrap();
 
     //Create a buffer to hold the data sent/received
-    let mut buffer = [0, 100];
+    let mut buffer = [0];
 
     // Generates a Vector of 100 random unsigned integers
     let vals: Vec<u8> = (0..100).map(|_| range.gen()).collect();
 
     thread::spawn(move || {
         for i in 0..100 {
+            print!("Produced: {}\t", vals[i]);
             // Send the data over the socket
             let amt = producer_socket.send_to(&vals[i..i+1], cons_name);
-            println!("{}: Sent {:?} to {}.", prod_name, &vals[i..i+1], cons_name);
             thread::sleep(Duration::from_millis(1000));
         }
     });
@@ -31,8 +31,8 @@ fn main() {
     //Receive the data over the socket
     for j in 0..100 {
         let (size, peer) = consumer_socket.recv_from(&mut buffer).expect("Failed to receive message.");
-        println!("{}: Received {} from {}", cons_name, &buffer[j], peer);
-        thread::sleep(Duration::from_millis(1000));
+        println!("Received: {}", buffer[0]);
+        thread::sleep(Duration::from_millis(500));
     }
     println!("\nDone.");
     
