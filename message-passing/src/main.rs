@@ -5,12 +5,10 @@ use std::sync::mpsc;
 use std::time::Duration;
 
 fn main() {
-    // Create a range for the random number generator
-    let mut range = thread_rng();
     // Create a channel for message passing.
     let (tx, rx) = mpsc::channel();
     // Generates a Vector of 100 random unsigned integers
-    let mut vals: Vec<u8> = (0..100).map(|_| range.gen()).collect();
+    let mut vals: Vec<u8> = (0..100).map(|_| rand::random::<u8>).collect();
     
     // Spawn a thread to recieve the message and print it to the terminal
     thread::spawn(move || {
