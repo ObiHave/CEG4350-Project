@@ -5,4 +5,4 @@ authors = ["cheney"]
 
 [dependencies]
 rand = "0.5.5"
-circular-queue = "0.2.0"
+queue = "0.3.0"
