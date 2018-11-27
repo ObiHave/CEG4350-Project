@@ -20,13 +20,22 @@ fn main() {
     let vals: Vec<u8> = (0..100).map(|_| range.gen()).collect();
 
     thread::spawn(move || {
-        // Send the data over the socket
-        let amt = producer_socket.send_to(&vals[..], cons_name);
-        println!("{}: Sent {} bytes to {}.", prod_name, amt.unwrap(), cons_name);
+        for i in 0..100{
+            print!("Produced: {}\t", vals[i]);
+            // Send the data over the socket
+            let _ = producer_socket.send_to(&vals[i..i+1], cons_name);
+            thread::sleep(Duration::from_millis(250));
+        }
     });
-   // Generate and send the random produced numbers
-    //Receive the data over the socket
-    let (size, peer) = consumer_socket.recv_from(&mut buffer).expect("Failed to receive message.");
-    println!("{}: Received {} bytes from {}", cons_name, size, peer);
+    thread::spawn(move || {
+        for _ in 0..100 {
+            //Receive the data over the socket
+            consumer_socket.recv_from(&mut buffer).expect("Failed to receive message.");
+            println!("Received: {}", buffer[0]);
+            thread::sleep(Duration::from_millis(250));
+        }
+    }).join();
+    
+
     println!("\nDone.");
 }
