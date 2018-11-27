@@ -14,7 +14,7 @@ fn main() {
     let cons_name = consumer_socket.local_addr().unwrap();
 
     //Create a buffer to hold the data sent/received
-    let mut buffer = [0, 100];
+    let mut buffer = [0, 1];
 
     // Generates a Vector of 100 random unsigned integers
     let vals: Vec<u8> = (0..100).map(|_| range.gen()).collect();
