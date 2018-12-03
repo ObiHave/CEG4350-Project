@@ -7,45 +7,76 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 fn main() {
+    // Create a ring buffer "queue" with a maximum size of 10.
     let queue: Queue<u8> = Queue::with_capacity(10);
-    // Create a thread safe Mutex value initialized to 0.
-    let val = Arc::new(Mutex::new(queue));
- 
+    // Create a thread safe Mutex value initialized to the empty queue.
+    let val = Arc::new(Mutex::new(queue));    
     
-    
-        let mutex1 = val.clone();
-        let producer = thread::spawn(move || {
-            for _ in 0..100 {
-                // Gain access to the Mutex
-                {
-                    let mut tx = mutex1.lock().expect("The write Mutex was poisoned!");
-                    // Assign the value to a random generated value.
-                    let x: u8 = rand::random::<u8>();
-                    while tx.len() > 10 {}
-                    tx.queue(x);
-                    println!("Produced: {}\t", x);
-                }              
-                let num: u16 = rand::thread_rng().gen_range(0, 501);
-                thread::sleep(Duration::from_millis(num.into())); 
-            }
-            println!("Dat's a hundo.");
-        });
-
+    // In order to have persistent Mutexes across threads in Rust, the mutex must be cloned.
+    // This cloned mutex is then borrowed by the producer thread.
+    let mutex1 = val.clone();
+    // Create a new execution thread, which solely executes the producer_thread function.
+    thread::spawn(move || producer_thread(mutex1));
+    // In order to have persistent Mutexes across threads in Rust, the mutex must be cloned.
+    // This cloned mutex is then borrowed by the consumer thread.
     let mutex2 = val.clone();
-    let consumer = thread::spawn(move || {
+    // Create a new execution thread, which solely executes the consumer_thread function.
+    // This thread is joined so that the program does not finish executing before all 100 data is consumed.
+    thread::spawn(move || consumer_thread(mutex2)).join();
 
-        loop {
+    println!("Done.");
+}
 
-            {
-                let mut rx = mutex2.lock().expect("The read Mutex was poisoned!");
-                if let Some(item) = rx.dequeue() {
-                    println!("\t\t\tReceived: {} \t | Queue Length: {}", item, rx.len());
-                }
+// Generates 100 random 8-bit unsigned integers and adds them to the queue.
+fn producer_thread(mutex: Arc<Mutex<Queue<u8>>>) {
+    // Instantiate a counter to only produce 100 data
+    let mut tx_count = 0;
+    
+    loop {
+        {
+            // Attempt to gain access to the mutex, or print out the expected error message.
+            let mut tx = mutex.lock().expect("The write Mutex was poisoned!");
+            // If the queue is full, go to the next iteration of the loop and try again.
+            if tx.len() > 9 {continue}
+            // Generate a random 8-bit unsigned integer.
+            let x: u8 = rand::random::<u8>();
+            // Add the random number to the first spot in the queue.
+            tx.queue(x);
+            // Print out the number produced.
+            println!("Produced: {}\t", x);
+            // Keep track of the amount of data generated.
+            tx_count += 1;
+            // If 100 data has been produced, break the loop.
+            if tx_count == 99 {break}
+        }           
+        // Create a random number between 0 and 500.   
+        let pause: u16 = rand::thread_rng().gen_range(0, 500);
+        // Paused thread execution for a random amount of time.
+        thread::sleep(Duration::from_millis(pause).into())); 
+    }
+    println!("Produced 100 values. Producer terminating.");
+}
+
+fn consumer_thread(mutex: Arc<Mutex<Queue<u8>>>) {
+    // Instantiate a counter to only consume 100 data
+    let mut rx_count = 0;
+    loop {
+
+        {
+            // Attempt to gain access to the mutex, or print out the expected error message.
+            let mut rx = mutex.lock().expect("The read Mutex was poisoned!");
+            // If there is something in the queue that is able to be taken out, consume it.
+            if let Some(item) = rx.dequeue() {
+                // Keep track of the amount of data consumed.
+                rx_count += 1;
+                println!("\t\t\tReceived: {} \t | Queue Length: {}", item, rx.len());
             }
-            let num: u16 = rand::thread_rng().gen_range(0, 501);
-            thread::sleep(Duration::from_millis(num.into()));     
-        } 
-    }).join();
-
-    println!("\nDone.");
+            // If 100 data has been consumed, break the loop.
+            if rx_count == 99 {break}
+        }
+        // Paused thread execution for a random amount of time, between 0 and 500 milliseconds.
+        let pause: u16 = rand::thread_rng().gen_range(0, 500);        
+        thread::sleep(Duration::from_millis(pause.into()));     
+    }
+    println!("Received 100 values. Consumer terminating."); 
 }
