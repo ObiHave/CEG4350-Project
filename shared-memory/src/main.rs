@@ -70,7 +70,7 @@ fn consumer_thread(mutex: Arc<Mutex<Queue<u8>>>) {
             if let Some(item) = rx.dequeue() {
                 // Keep track of the amount of data consumed.
                 rx_count += 1;
-                println!("\t\t\tReceived: {} \t | Queue Length: {}", item, rx.len());
+                println!("\t\tReceived: {} \t | Queue Length: {}", item, rx.len());
             }
             // If 100 data has been consumed, break the loop.
             if rx_count == 99 {break}

@@ -5,15 +5,15 @@ use std::sync::mpsc;
 use std::time::Duration;
 
 fn main() {
-    // Create a channel for meessage passing, with a maximum buffer size of 5 items.
+    // Create a channel for message passing, with a maximum buffer size of 5 items.
     let (tx, rx) = mpsc::sync_channel(5);
     // Generates a Vector of 100 random 8-bit unsigned integers
     let mut vals: Vec<u8> = (0..100).map(|_| rand::random::<u8>()).collect();
     
-    // Spawn a thread to recieve the data and print it to the terminal
+    // Spawn a thread to receive the data and print it to the terminal
     thread::spawn(move || {
-        for recieved in rx {
-            println!("\t\tRecieved: {}", recieved); 
+        for received in rx {
+            println!("\t\tReceived: {}", received); 
 
             // Paused thread execution for a random amount of time.
             let pause: u16 = rand::thread_rng().gen_range(0, 1000);
