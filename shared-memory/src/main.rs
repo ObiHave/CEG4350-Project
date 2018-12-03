@@ -9,20 +9,21 @@ use std::time::Duration;
 fn main() {
     // Create a ring buffer "queue" with a maximum size of 10.
     let queue: Queue<u8> = Queue::with_capacity(10);
-    // Create a thread safe Mutex value initialized to the empty queue.
-    let val = Arc::new(Mutex::new(queue));    
+    // Create a thread safe Mutex value initialized to track the queue.
+    let mutex = Arc::new(Mutex::new(queue));    
     
     // In order to have persistent Mutexes across threads in Rust, the mutex must be cloned.
     // This cloned mutex is then borrowed by the producer thread.
-    let mutex1 = val.clone();
+    let pmutex = mutex.clone();
     // Create a new execution thread, which solely executes the producer_thread function.
-    thread::spawn(move || producer_thread(mutex1));
-    // In order to have persistent Mutexes across threads in Rust, the mutex must be cloned.
-    // This cloned mutex is then borrowed by the consumer thread.
-    let mutex2 = val.clone();
+    thread::spawn(move || producer_thread(pmutex));
+
+    
+    // Clone the mutex to be borrowed by the consumer thread.
+    let cmutex = mutex.clone();
     // Create a new execution thread, which solely executes the consumer_thread function.
     // This thread is joined so that the program does not finish executing before all 100 data is consumed.
-    thread::spawn(move || consumer_thread(mutex2)).join();
+    thread::spawn(move || consumer_thread(cmutex)).join();
 
     println!("Done.");
 }
@@ -52,7 +53,7 @@ fn producer_thread(mutex: Arc<Mutex<Queue<u8>>>) {
         // Create a random number between 0 and 500.   
         let pause: u16 = rand::thread_rng().gen_range(0, 500);
         // Paused thread execution for a random amount of time.
-        thread::sleep(Duration::from_millis(pause).into())); 
+        thread::sleep(Duration::from_millis(pause.into())); 
     }
     println!("Produced 100 values. Producer terminating.");
 }
