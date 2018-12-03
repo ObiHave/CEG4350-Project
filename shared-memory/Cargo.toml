@@ -1,7 +1,7 @@
 [package]
 name = "shared-memory"
 version = "0.1.0"
-authors = ["cheney"]
+authors = ["Cheney Sollenberger sollenberger.15@wright.edu"]
 
 [dependencies]
 rand = "0.5.5"

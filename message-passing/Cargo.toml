@@ -1,5 +1,5 @@
 [package]
-name = "pipe"
+name = "message-passing"
 version = "0.1.0"
 authors = ["Cheney Sollenberger sollenberger.15@wright.edu"]
 
