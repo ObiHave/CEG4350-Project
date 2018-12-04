@@ -1,5 +1,4 @@
 extern crate rand;
-use rand::Rng;
 use std::thread;
 use std::sync::mpsc;
 use std::time::Duration;
@@ -12,9 +11,10 @@ fn main() {
     
     // Spawn a thread to recieve the data and print it to the terminal
     thread::spawn(move || {
-        for received in rx {
-            println!("\t\tReceived: {}", received);
-        }        
+        for recieved in rx {
+            println!("Recieved: {}", recieved);
+        }   
+        println!("Received 100 values. Consumer terminating.");
     });
     // Spawn a thread to "produce" data, print it to the terminal, and send it to the receiver.
     // This thread is joined so that the program does not finish executing before all 100 data is produced.
@@ -24,8 +24,8 @@ fn main() {
             // Pop the last item off the random data vector
             let x: u8 = vals.pop().unwrap();
             // Print the data to the terminal
-            println!("Produced: {}\t", x);
-            // Send the data to the receiver
+            print!("Produced: {}\t", x);
+            // Send the data to the reciever
             tx.send(x).unwrap();
 
             thread::sleep(Duration::from_millis(250));
